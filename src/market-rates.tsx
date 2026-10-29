@@ -53,7 +53,7 @@ function RatesDetail({ slug }: { slug: string }) {
             ? `\nDay pass median: **${money(data.dayPass.median)}**/day (${data.dayPass.sampleSize} spaces)`
             : "",
           data.meetingRoom
-            ? `Meeting room median: **${money(data.meetingRoom.median)}**/hour (${data.meetingRoom.sampleSize} spaces)`
+            ? `\nMeeting room median: **${money(data.meetingRoom.median)}**/hour (${data.meetingRoom.sampleSize} spaces)`
             : "",
           "\n_Medians over the spaces that publish a price. Source: CoworkingView Price Index, CC BY 4.0._",
         ]
