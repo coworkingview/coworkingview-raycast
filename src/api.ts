@@ -1,13 +1,11 @@
-import { getPreferenceValues } from "@raycast/api";
-
 /** Public, read-only CoworkingView API. No key needed. */
 export const API = "https://api.coworkingview.com";
 
 export type Locale = "en" | "de" | "es";
 
+/** Raycast Store extensions are US English only, so the data is requested in English too. */
 export function locale(): Locale {
-  const { locale } = getPreferenceValues<{ locale?: Locale }>();
-  return locale === "de" || locale === "es" ? locale : "en";
+  return "en";
 }
 
 export type Money = { amount: number; currency: string };

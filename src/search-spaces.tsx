@@ -102,7 +102,7 @@ export default function SearchSpaces() {
               <Action.OpenInBrowser url={spaceUrl(space.slug)} />
               <Action.CopyToClipboard title="Copy Link" content={spaceUrl(space.slug)} />
               <ActionPanel.Submenu
-                title="Workspace Type"
+                title="Workspace Type…"
                 icon={Icon.Filter}
                 shortcut={{ modifiers: ["cmd"], key: "t" }}
               >

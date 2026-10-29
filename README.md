@@ -9,7 +9,7 @@ Search coworking spaces, private offices, fixed and flex desks, day passes and m
 
 ## Setup
 
-None. The extension uses the public CoworkingView API, which needs no API key. Set the language (English, German or Spanish) in the extension preferences.
+None. The extension uses the public CoworkingView API, which needs no API key.
 
 ## Cities
 

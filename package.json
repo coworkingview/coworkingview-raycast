@@ -17,7 +17,15 @@
       "subtitle": "CoworkingView",
       "description": "Find coworking spaces and private offices in a city, filtered by workspace type, with their entry price.",
       "mode": "view",
-      "keywords": ["coworking", "office", "desk", "workspace", "private office", "day pass", "meeting room"]
+      "keywords": [
+        "coworking",
+        "office",
+        "desk",
+        "workspace",
+        "private office",
+        "day pass",
+        "meeting room"
+      ]
     },
     {
       "name": "market-rates",
@@ -25,21 +33,12 @@
       "subtitle": "CoworkingView",
       "description": "See the median price of a private office, fixed desk, flex desk and more in a city.",
       "mode": "view",
-      "keywords": ["coworking", "price", "rent", "office cost", "market"]
-    }
-  ],
-  "preferences": [
-    {
-      "name": "locale",
-      "title": "Language",
-      "description": "Language of space names, descriptions and links.",
-      "type": "dropdown",
-      "required": false,
-      "default": "en",
-      "data": [
-        { "title": "English", "value": "en" },
-        { "title": "Deutsch", "value": "de" },
-        { "title": "Español", "value": "es" }
+      "keywords": [
+        "coworking",
+        "price",
+        "rent",
+        "office cost",
+        "market"
       ]
     }
   ],
