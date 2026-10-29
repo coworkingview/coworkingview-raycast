@@ -1,5 +1,49 @@
+import https from "node:https";
+
 /** Public, read-only CoworkingView API. No key needed. */
 export const API = "https://api.coworkingview.com";
+
+const TIMEOUT_MS = 15000;
+
+/**
+ * GET a JSON document with Node's https and a fresh connection per request.
+ *
+ * Not `fetch`: its pooled keep-alive sockets can be closed by the server while
+ * idle, and the resulting "socket idle timeout" is raised outside the request,
+ * where it crashes the command instead of reaching the caller.
+ */
+export function getJson<T>(url: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      url,
+      {
+        agent: false,
+        timeout: TIMEOUT_MS,
+        headers: { Accept: "application/json", "User-Agent": "coworkingview-raycast" },
+      },
+      (res) => {
+        let body = "";
+        res.setEncoding("utf8");
+        res.on("data", (chunk) => (body += chunk));
+        res.on("error", reject);
+        res.on("end", () => {
+          const status = res.statusCode ?? 0;
+          if (status < 200 || status > 299) {
+            reject(new Error(`CoworkingView API answered ${status}`));
+            return;
+          }
+          try {
+            resolve(JSON.parse(body) as T);
+          } catch {
+            reject(new Error("CoworkingView API returned invalid JSON"));
+          }
+        });
+      },
+    );
+    req.on("timeout", () => req.destroy(new Error(`CoworkingView API did not answer within ${TIMEOUT_MS / 1000} s`)));
+    req.on("error", reject);
+  });
+}
 
 export type Locale = "en" | "de" | "es";
 

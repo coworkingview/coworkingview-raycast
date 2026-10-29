@@ -1,5 +1,5 @@
 import { Action, ActionPanel, Color, Detail, Icon, List } from "@raycast/api";
-import { useCachedState, useFetch } from "@raycast/utils";
+import { useCachedPromise, useCachedState } from "@raycast/utils";
 import { useState } from "react";
 import {
   API,
@@ -9,6 +9,7 @@ import {
   SpaceSummary,
   WORKSPACE_TYPES,
   cityUrl,
+  getJson,
   locale,
   money,
   per,
@@ -19,12 +20,14 @@ import {
 const PAGE_SIZE = 50;
 
 export function useCities() {
-  return useFetch<Envelope<{ cities: City[] }>, undefined, City[]>(`${API}/v1/geo/bootstrap?locale=${locale()}`, {
-    mapResult: (body) => ({
-      data: [...body.data.cities].sort((a, b) => b.propertyCount - a.propertyCount || a.name.localeCompare(b.name)),
-    }),
-    keepPreviousData: true,
-  });
+  return useCachedPromise(
+    async (url: string) => {
+      const body = await getJson<Envelope<{ cities: City[] }>>(url);
+      return [...body.data.cities].sort((a, b) => b.propertyCount - a.propertyCount || a.name.localeCompare(b.name));
+    },
+    [`${API}/v1/geo/bootstrap?locale=${locale()}`],
+    { keepPreviousData: true },
+  );
 }
 
 const VERDICT_COLOR = { below: Color.Green, around: Color.Blue, above: Color.Orange } as const;
@@ -34,8 +37,8 @@ export default function SearchSpaces() {
   const [type, setType] = useState<string>("");
   const { data: cities, isLoading: citiesLoading } = useCities();
 
-  const { data, isLoading, pagination } = useFetch(
-    (options) => {
+  const { data, isLoading, pagination } = useCachedPromise(
+    (city: string, type: string) => async (options: { page: number }) => {
       const q = new URLSearchParams({
         locale: locale(),
         city,
@@ -43,16 +46,12 @@ export default function SearchSpaces() {
         page: String(options.page + 1),
       });
       if (type) q.set("pricingOptionType", type);
-      return `${API}/v1/properties?${q}`;
+      const body = await getJson<Envelope<SpaceSummary[]>>(`${API}/v1/properties?${q}`);
+      const p = body.meta.pagination;
+      return { data: body.data, hasMore: p ? p.page < p.pageCount : false };
     },
-    {
-      mapResult: (body: Envelope<SpaceSummary[]>) => {
-        const p = body.meta.pagination;
-        return { data: body.data, hasMore: p ? p.page < p.pageCount : false };
-      },
-      keepPreviousData: true,
-      initialData: [],
-    },
+    [city, type],
+    { keepPreviousData: true, initialData: [] },
   );
 
   const cityName = cities?.find((c) => c.slug === city)?.name ?? city;
@@ -121,9 +120,9 @@ export default function SearchSpaces() {
 }
 
 function SpaceDetail({ slug }: { slug: string }) {
-  const { data, isLoading } = useFetch<Envelope<Space>, undefined, Space | undefined>(
-    `${API}/v1/properties/${encodeURIComponent(slug)}?locale=${locale()}`,
-    { mapResult: (body) => ({ data: body.data }) },
+  const { data, isLoading } = useCachedPromise(
+    async (url: string) => (await getJson<Envelope<Space>>(url)).data,
+    [`${API}/v1/properties/${encodeURIComponent(slug)}?locale=${locale()}`],
   );
 
   const markdown = data

@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Detail, Icon, List } from "@raycast/api";
-import { useFetch } from "@raycast/utils";
-import { API, CityRates, Envelope, cityUrl, locale, money, priceIndexUrl, typeTitle } from "./api";
+import { useCachedPromise } from "@raycast/utils";
+import { API, CityRates, Envelope, cityUrl, getJson, locale, money, priceIndexUrl, typeTitle } from "./api";
 import { useCities } from "./search-spaces";
 
 export default function MarketRates() {
@@ -29,9 +29,9 @@ export default function MarketRates() {
 }
 
 function RatesDetail({ slug }: { slug: string }) {
-  const { data, isLoading } = useFetch<Envelope<{ cities: CityRates[] }>, undefined, CityRates | null>(
-    `${API}/v1/market/rates?locale=${locale()}&city=${encodeURIComponent(slug)}`,
-    { mapResult: (body) => ({ data: body.data.cities[0] ?? null }) },
+  const { data, isLoading } = useCachedPromise(
+    async (url: string) => (await getJson<Envelope<{ cities: CityRates[] }>>(url)).data.cities[0] ?? null,
+    [`${API}/v1/market/rates?locale=${locale()}&city=${encodeURIComponent(slug)}`],
   );
 
   const figures = data?.figures ?? [];
